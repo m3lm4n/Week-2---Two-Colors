@@ -12,11 +12,11 @@ public class PostProcessShader : MonoBehaviour {
 
 	private Vector4 activeColor;
 
-	private Camera camera;
+	private Camera cameraComponent;
 
 	// Use this for initialization
 	void Start () {
-		camera = GetComponent<Camera> ();
+		cameraComponent = GetComponent<Camera> ();
 		activeColor = orangeColor;
 	}
 	
@@ -32,7 +32,7 @@ public class PostProcessShader : MonoBehaviour {
 	void OnRenderImage (RenderTexture source, RenderTexture destination)
 	{
 		postProcessMaterial.SetVector ("_Color", activeColor);
-		postProcessMaterial.SetVector ("_Source", camera.WorldToScreenPoint(player.transform.position));
+		postProcessMaterial.SetVector ("_Source", cameraComponent.WorldToScreenPoint(player.transform.position));
 		Graphics.Blit (source, destination, postProcessMaterial);
 	}
 }

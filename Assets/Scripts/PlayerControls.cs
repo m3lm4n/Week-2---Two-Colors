@@ -26,6 +26,10 @@ public class PlayerControls : MonoBehaviour {
 			player.EndJump ();
 			isJumping = false;
 		}
+
+		if (Input.GetKeyDown(KeyCode.Escape)) {
+			Application.Quit ();
+		}
 	}
 
 }
