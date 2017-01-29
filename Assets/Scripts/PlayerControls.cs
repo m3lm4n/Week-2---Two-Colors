@@ -12,7 +12,7 @@ public class PlayerControls : MonoBehaviour {
 		player = GetComponent<Player> ();
 	}
 
-	private void FixedUpdate (){
+	private void Update (){
 		float h = Input.GetAxis ("Horizontal");
 
 		player.Move (h);

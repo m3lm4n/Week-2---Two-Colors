@@ -1,104 +1,74 @@
-﻿Shader "Custom/CustomShader" {
-	Properties
-	{
-		[PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
-		_Color ("Tint", Color) = (1,1,1,1)
-		[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
-		u_uSource ("Center", Vector) = (0,0,0)
-	}
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
-	SubShader
-	{
-		Tags
-		{ 
-			"Queue"="Transparent" 
-			"IgnoreProjector"="True" 
-			"RenderType"="Transparent" 
-			"PreviewType"="Plane"
-			"CanUseSpriteAtlas"="True"
-		}
+Shader "Custom/CustomShader"
+{
+    Properties
+    {
+        _MainTex ("Diffuse Texture", 2D) = "white" {}
+        _Source ("Source", Vector) = (0.0, 0.0, 0.0)
+    }
+    SubShader
+    {
+    	Cull Off
+        AlphaTest NotEqual 0.0
+        Blend One OneMinusSrcAlpha
+        Pass
+        {
+            Tags { "LightMode" = "ForwardBase" }
+ 
+            CGPROGRAM
+ 
+            #pragma vertex vert
+            #pragma fragment frag
+ 
+            #include "UnityCG.cginc"
+ 
+            // User-specified properties
+            uniform sampler2D _MainTex;
+            uniform float3 _Source;
+ 
+            struct VertexInput
+            {
+                float4 vertex : POSITION;
+                float4 uv : TEXCOORD0;
+            };
+ 
+            struct VertexOutput
+            {
+                float4 pos : POSITION;
+                float2 uv : TEXCOORD0;
+            };
+ 
+            VertexOutput vert(VertexInput input) 
+            {
+                VertexOutput output;
+                output.pos = mul(UNITY_MATRIX_MVP, input.vertex);
+                output.uv = float2(input.uv.xy);
+                return output;
+            }
+ 
+            float4 frag(VertexOutput input) : COLOR
+            {
+//            	float4 gl_FragColor;
+//            	
+//            	float2 pos = mul(UNITY_MATRIX_VP, input.pos).xy;
+//            	float3 ss = mul(UNITY_MATRIX_VP, _Source).xyz;
+//			 
+//			    float2 p = float2(pos.x - ss.x, (pos.y - ss.y));
+//			    float len = length(p);
+//			 
+//			    gl_FragColor = tex2D( _MainTex, input.uv );
+//
+//			    if(len>ss.z) gl_FragColor = 1. - gl_FragColor;
+//
+//			    return gl_FragColor;
 
-		Cull Off
-		Lighting Off
-		ZWrite Off
-		Blend One OneMinusSrcAlpha
-
-		Pass
-		{
-		CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
-			#pragma target 2.0
-			#pragma multi_compile _ PIXELSNAP_ON
-			#pragma multi_compile _ ETC1_EXTERNAL_ALPHA
-			#include "UnityCG.cginc"
-			
-			struct appdata_t
-			{
-				float4 vertex   : POSITION;
-				float4 color    : COLOR;
-				float2 texcoord : TEXCOORD0;
-				UNITY_VERTEX_INPUT_INSTANCE_ID
-			};
-
-			struct v2f
-			{
-				float4 vertex   : SV_POSITION;
-				fixed4 color    : COLOR;
-				float2 texcoord  : TEXCOORD0;
-				UNITY_VERTEX_OUTPUT_STEREO
-			};
-			
-			fixed4 _Color;
-
-			v2f vert(appdata_t IN)
-			{
-				v2f OUT;
-				UNITY_SETUP_INSTANCE_ID(IN);
-				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
-				OUT.vertex = UnityObjectToClipPos(IN.vertex);
-				OUT.texcoord = IN.texcoord;
-				OUT.color = IN.color * _Color;
-				#ifdef PIXELSNAP_ON
-				OUT.vertex = UnityPixelSnap (OUT.vertex);
-				#endif
-
-				return OUT;
-			}
-
-			sampler2D _MainTex;
-			sampler2D _AlphaTex;
-
-			fixed4 SampleSpriteTexture (float2 uv)
-			{
-				fixed4 color = tex2D (_MainTex, uv);
-
-#if ETC1_EXTERNAL_ALPHA
-				// get the color from an external texture (usecase: Alpha support for ETC1 on android)
-				color.a = tex2D (_AlphaTex, uv).r;
-#endif //ETC1_EXTERNAL_ALPHA
-
-				return color;
-			}
-
-			float3 u_uSource;
-
-			fixed4 frag(v2f IN) : SV_Target
-			{
-
-			 	float xx = IN.texcoord.x;
-			    float yy = IN.texcoord.y;
-
-			    float2 p = float2(xx - u_uSource.x, (yy - u_uSource.y)*9./16.);
-			    float len = length(p);
-
-			    fixed4 gl_FragColor = IN.color * tex2D(_MainTex, IN.texcoord);
-
-			    if(len>u_uSource.z) gl_FragColor = 1. - gl_FragColor;
-
-				return gl_FragColor;
-			}
-		ENDCG
-		}
-	}
+                float4 diffuseColor = tex2D(_MainTex, input.uv);
+                diffuseColor.rgb *= diffuseColor.a;
+                return diffuseColor;
+            }
+ 
+            ENDCG
+        }
+    }
 }

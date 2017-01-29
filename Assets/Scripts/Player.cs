@@ -7,8 +7,10 @@ public class Player : MonoBehaviour {
 	public float maxSpeed = 7f;
 	public float jumpForce = 10f;
 	public LayerMask groundLayer;
+	public SwitchManager switchManager;
 
 	private Rigidbody2D body;
+	private SpriteRenderer sRenderer;
 	private bool isFacingRight;
 	private bool isGrounded;
 	private float groundedRadius = .1f;
@@ -17,7 +19,9 @@ public class Player : MonoBehaviour {
 
 	private void Awake() {
 		body = GetComponent<Rigidbody2D> ();
+		sRenderer = GetComponent<SpriteRenderer> ();
 		groundCheck = transform.Find ("GroundCheck");
+
 		isFacingRight = true;
 	}
 
@@ -30,6 +34,10 @@ public class Player : MonoBehaviour {
 				isGrounded = true;
 			}
 		}
+
+		Vector3 source = transform.position;
+		source.z = 10f;
+		sRenderer.sharedMaterial.SetVector ("_Source", source);
 	}
 
 	public void Move (float direction)
@@ -46,6 +54,7 @@ public class Player : MonoBehaviour {
 	public void Jump ()
 	{
 		if (isGrounded) {
+			switchManager.Switch();
 			isGrounded = false;
 			body.AddForce (new Vector2 (0f, jumpForce));
 		}
@@ -53,7 +62,7 @@ public class Player : MonoBehaviour {
 
 	public void EndJump ()
 	{
-		body.AddForce (new Vector2 (0f, jumpForce * -1 * 0.6f));
+		body.AddForce (new Vector2 (0f, jumpForce * -1 * 0.4f));
 	}
 
 	private void Flip() {
