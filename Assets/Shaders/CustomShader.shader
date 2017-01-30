@@ -57,38 +57,40 @@ Shader "Custom/CustomShader"
  
             float4 frag(VertexOutput input) : COLOR
             {
-            	 float r1 = 0.005;
+            	float r1 = 0.005;
 			    float r2 = r1*2.;
 			    float s1 = 1.-r1*2.;
 			    float s2 = 1.-r2*2.;
 
         		float4 outColor;
+//
+//            	float4 screenPos = mul(unity_WorldToObject, float4(_Source, 0));
+//
+//            	float xx = input.pos.x;
+//			    float yy = input.pos.y;
+//			 
+//			    float2 p = float2(xx - screenPos.x, (yy - screenPos.y));
+//			    float len = length(p);
+//			 
+//			    float ran = 2000*rand(float2(_SinTime.w+xx,_SinTime.x+sin(yy)));
+//
+//			    float ux = input.uv.x;
+//		    	float uy = input.uv.y;
+//		       	float3 newcoordx = float3(ux,ux*s1+r1,ux*s2+r2);
+//		        float3 newcoordy = float3(uy,uy*s1+r1,uy*s2+r2);
+//				outColor = float4(0,0,0,1);
+//		 
+//		        outColor.r = tex2D( _MainTex, float2(newcoordx.r, newcoordy.r)).r;
+//		        outColor.g = tex2D( _MainTex, float2(newcoordx.g, newcoordy.g)).g;
+//		        outColor.b = tex2D( _MainTex, float2(newcoordx.b, newcoordy.b)).b; 
+//
+//			    if(len+ran>2030) {
+//			    	outColor.rgb += _Color.rgb * _Color.a;
+//			    }
 
-            	float4 screenPos = mul(unity_WorldToObject, float4(_Source, 0));
 
-            	float xx = input.pos.x;
-			    float yy = input.pos.y;
-			 
-			    float2 p = float2(xx - screenPos.x, (yy - screenPos.y));
-			    float len = length(p);
-			 
-			    float ran = 2000*rand(float2(_SinTime.w+xx,_SinTime.x+sin(yy)));
-
-			    float ux = input.uv.x;
-		    	float uy = input.uv.y;
-		       	float3 newcoordx = float3(ux,ux*s1+r1,ux*s2+r2);
-		        float3 newcoordy = float3(uy,uy*s1+r1,uy*s2+r2);
-		 
-		        outColor = float4(0,0,0,1);
-		 
-		        outColor.r = tex2D( _MainTex, float2(newcoordx.r, newcoordy.r)).r;
-		        outColor.g = tex2D( _MainTex, float2(newcoordx.g, newcoordy.g)).g;
-		        outColor.b = tex2D( _MainTex, float2(newcoordx.b, newcoordy.b)).b; 
-
-			    if(len+ran>2030) {
-			    	outColor.rgb += _Color.rgb * _Color.a;
-			    }
-
+			    outColor = tex2D( _MainTex, input.uv);
+			    outColor.rgb *= outColor.a;
 
 			    return outColor;
 //            	
